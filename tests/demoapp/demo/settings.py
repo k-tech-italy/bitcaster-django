@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "bitcaster_django",
+    "bitcaster_django.apps.Config",
 ]
 
 MIDDLEWARE = [
@@ -80,7 +80,8 @@ DATABASES = {
         "NAME": os.environ.get("DATABASE_NAME", "bitcaster-django"),
         "USER": os.environ.get("DATABASE_USER", 'postgres'),
         "PASSWORD": os.environ.get("DATABASE_PASS", None),
-        "HOST": os.environ.get("DATABASE_HOST", 'localhost:5432')
+        "HOST": os.environ.get("DATABASE_HOST", 'localhost'),
+        "PORT": os.environ.get("DATABASE_PORT", '5432'),
     },
 }
 # set to 'True' in production

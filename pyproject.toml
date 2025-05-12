@@ -4,11 +4,13 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.9"
+bitcaster-sdk = { git = "https://github.com/bitcaster-io/bitcaster-sdk.git" }
 
 dependencies = [
     "bitcaster-sdk",
     "django-environ>=0.11.2",
     "psycopg[binary]",
+    "pytest-django>=4.11.1",
 ]
 
 [dependency-groups]
@@ -26,8 +28,3 @@ django = ["django>=4.2"]
 
 [tool.uv]
 default-groups = ["django", "dev"]
-
-[tool.uv.dependencies]
-bitcaster-sdk = { git = "https://github.com/bitcaster-io/bitcaster-sdk.git" }
-
-
