@@ -4,6 +4,7 @@ This module defines a `Client` class that integrates with Bitcaster,
 retrieving event configuration from the local database and triggering
 remote events based on the provided event name.
 """
+
 import os
 
 import bitcaster_sdk
@@ -20,7 +21,7 @@ class Client:
     names to remote Bitcaster event slugs and sends the corresponding trigger.
     """
 
-    def trigger_event(self, event_name: str)->None:
+    def trigger_event(self, event_name: str) -> None:
         """Triggers a remote event in Bitcaster based on the given local event name."""
         mapping = get_object_or_404(EventConfig, local_name=event_name)
         bitcaster_sdk.init()

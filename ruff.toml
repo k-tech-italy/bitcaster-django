@@ -1,4 +1,4 @@
-target-version = "py39"
+target-version = "py38"
 line-length = 120
 
 [lint]
@@ -90,9 +90,9 @@ line-ending = "auto"
 case-sensitive = true
 force-wrap-aliases = true
 combine-as-imports = true
-known-third-party = ['django']
+known-third-party = ['django', 'bitcaster_sdk']
 no-sections = false
-lines-after-imports = 1
+lines-after-imports = 2
 relative-imports-order = "furthest-to-closest"
 section-order = [
     "future",
@@ -116,4 +116,3 @@ section-order = [
     "PT006",
 ]
 "tests/demoapp/**/migrations/*.py" = ["ALL"]
-"src/bitcaster_django/version.py" = ["ALL"]
