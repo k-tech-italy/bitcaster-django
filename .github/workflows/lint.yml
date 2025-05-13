@@ -58,5 +58,5 @@ jobs:
       - name: lint
         if: needs.changes.outputs.lint
         run: |
-          uv run isort src/ --check-only
-          uv run flake8 src/
+          ruff check --select I src
+          ruff format --check src
