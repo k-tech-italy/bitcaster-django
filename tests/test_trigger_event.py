@@ -17,7 +17,8 @@ def test_trigger_event(monkeypatch):
         monkeypatch.setenv("BITCASTER_PROJECT_SLUG", "example_project")
         monkeypatch.setenv("BITCASTER_APPLICATION", "example_application")
 
-        EventConfig.objects.create(local_name="example_local_name", remote_event_slug="example_remote_slug")
+        obj = EventConfig.objects.create(local_name="example_local_name", remote_event_slug="example_remote_slug")
+        assert str(obj) == "example_local_name"
 
         client.trigger_event("example_local_name")
 
