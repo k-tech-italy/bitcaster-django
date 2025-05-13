@@ -4,8 +4,17 @@ from django.db import models
 
 
 class EventConfig(models.Model):
+    """
+    Model that maps a local event name to a remote Bitcaster event slug.
+
+    Attributes:
+        local_name (str): The unique name used locally to identify the event.
+        remote_event_slug (str): The corresponding slug used by Bitcaster to trigger the event.
+
+    """
+
     local_name = models.CharField(unique=True)
     remote_event_slug = models.SlugField()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.local_name

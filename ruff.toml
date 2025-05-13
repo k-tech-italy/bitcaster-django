@@ -76,6 +76,9 @@ ignore = [
     "PLW0603",
 ]
 
+[lint.extend-per-file-ignores]
+"*/migrations/*.py" = ["D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107"]
+
 [format]
 quote-style = "double"
 indent-style = "space"
