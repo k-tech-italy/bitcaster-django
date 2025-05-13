@@ -3,9 +3,10 @@ name = "bitcaster-django"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -13,12 +14,9 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-  "bitcaster-sdk",
-  "django-environ>=0.11.2",
+  "bitcaster-sdk>=0.2",
+  "django>=4.2",
 ]
-
-[tool.uv.sources]
-bitcaster-sdk = { git = "https://github.com/bitcaster-io/bitcaster-sdk.git" }
 
 [dependency-groups]
 dev = [
@@ -26,15 +24,14 @@ dev = [
   "mkdocs-material>=9.5.36",
   "mypy>=1.11.2",
   "pdbpp>=0.10.3",
-  "pre-commit>=4.2",
-  "pytest>=8.3.3",
-  "pytest-cov>=5",
-  "pytest-django>=4.11.1",
-  "pytest-env>=1.1.5",
+  "pre-commit",
+  "pytest",
+  "pytest-cov",
+  "pytest-django",
+  "pytest-env",
   "tox>=4.25",
   "types-setuptools",
 ]
-django = [ "django>=4.2" ]
 
 [tool.uv]
-default-groups = [ "django", "dev" ]
+default-groups = [ "dev" ]

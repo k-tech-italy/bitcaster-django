@@ -13,8 +13,8 @@ class EventConfig(models.Model):
 
     """
 
-    local_name = models.CharField(unique=True)
-    remote_event_slug = models.SlugField()
+    local_name = models.CharField(max_length=100, unique=True)
+    remote_event_slug = models.SlugField(max_length=100)
 
     def __str__(self) -> str:
         return self.local_name

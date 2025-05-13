@@ -1,6 +1,5 @@
 import pytest
 
-import bitcaster_sdk
 from bitcaster_django.client import Client
 
 from unittest.mock import patch
@@ -10,11 +9,14 @@ from bitcaster_django.models import EventConfig
 
 @pytest.mark.django_db
 def test_trigger_event(monkeypatch):
-    bitcaster_sdk.init()
-    client = Client()
     with patch("bitcaster_sdk.trigger") as mock_trigger:
         monkeypatch.setenv("BITCASTER_PROJECT_SLUG", "example_project")
         monkeypatch.setenv("BITCASTER_APPLICATION", "example_application")
+
+        import bitcaster_sdk
+
+        bitcaster_sdk.init()
+        client = Client()
 
         obj = EventConfig.objects.create(local_name="example_local_name", remote_event_slug="example_remote_slug")
         assert str(obj) == "example_local_name"
@@ -29,12 +31,15 @@ def test_trigger_event(monkeypatch):
 @pytest.mark.parametrize("env_variable", [("BITCASTER_PROJECT_SLUG"), ("BITCASTER_APPLICATION")])
 @pytest.mark.django_db
 def test_trigger_event_without_env_variables(monkeypatch, env_variable):
-    bitcaster_sdk.init()
-    client = Client()
     with patch("bitcaster_sdk.trigger"):
         monkeypatch.setenv("BITCASTER_PROJECT_SLUG", "example_project")
         monkeypatch.setenv("BITCASTER_APPLICATION", "example_application")
         monkeypatch.delenv(env_variable, False)
+
+        import bitcaster_sdk
+
+        bitcaster_sdk.init()
+        client = Client()
 
         EventConfig.objects.create(local_name="example_local_name", remote_event_slug="example_remote_slug")
 
