@@ -27,6 +27,8 @@ def test_trigger_event(monkeypatch):
             project="example_project", application="example_application", event="example_remote_slug"
         )
 
+        client.post('system/ping')
+
 
 @pytest.mark.parametrize("env_variable", [("BITCASTER_PROJECT_SLUG"), ("BITCASTER_APPLICATION")])
 @pytest.mark.django_db
