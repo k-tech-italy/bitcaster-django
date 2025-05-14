@@ -11,8 +11,6 @@ build/
 !.*.example
 !tests/.coveragerc
 !.github
-!.flake8
-!.github/
 !.mypy.ini
 !.pre-commit-config.yaml
 !bandit.yaml

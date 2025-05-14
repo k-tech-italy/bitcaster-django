@@ -1,8 +1,7 @@
 """bitcaster-django app config."""
 
-from typing_extensions import override
-
 from django.apps import AppConfig
+from typing_extensions import override
 
 
 class Config(AppConfig):  # noqa: D101

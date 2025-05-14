@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-import os
+
 from pathlib import Path
 
 
@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-7b411*t88@^8_py&b0p7x7x0)tykqxq8ysv+=y*8%#adhc@k-$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS: list[str] = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Application definition
 
@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "bitcaster_django",
+    "bitcaster_django.apps.Config",
 ]
 
 MIDDLEWARE = [
@@ -73,15 +73,7 @@ WSGI_APPLICATION = "demo.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": os.environ.get(
-            "DATABASE_ENGINE", 'django.db.backends.postgresql'
-        ),
-        "NAME": os.environ.get("DATABASE_NAME", "bitcaster-django"),
-        "USER": os.environ.get("DATABASE_USER", 'postgres'),
-        "PASSWORD": os.environ.get("DATABASE_PASS", None),
-        "HOST": os.environ.get("DATABASE_HOST", 'localhost:5432')
-    },
+    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ".db.sqlite"},
 }
 # set to 'True' in production
 SESSION_COOKIE_SECURE = False
