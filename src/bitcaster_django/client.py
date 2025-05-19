@@ -25,19 +25,18 @@ class Client:
     """
 
     def __init__(self) -> None:
-        bitcaster_bae = os.getenv('BITCASTER_BAE')
+        bitcaster_bae = os.getenv("BITCASTER_BAE")
         if not bitcaster_bae:
-            raise RuntimeError('Missing required environment variable BITCASTER_BAE')
+            raise RuntimeError("Missing required environment variable BITCASTER_BAE")
 
         match = re.match(r"https?:\/\/([^@]+)@([^\/]+)\/api\/o\/([^\/]+)\/", bitcaster_bae)
 
         if not match:
-            raise RuntimeError('Invalid BITCASTER_BAE format')
+            raise RuntimeError("Invalid BITCASTER_BAE format")
 
-        self.api_key= match.group(1)
-        self.base_url = 'http://' + match.group(2)
+        self.api_key = match.group(1)
+        self.base_url = "http://" + match.group(2)
         self.organization = match.group(3)
-
 
     def trigger_event(self, event_name: str) -> None:
         """Triggers a remote event in Bitcaster based on the given local event name."""
@@ -55,26 +54,32 @@ class Client:
 
         trigger(project=project, application=application, event=mapping.remote_event_slug)
 
-    def _request(self, method: str, path: str, **kwargs: Any) -> requests.Response: # noqa: ANN401
+    def _request(self, method: str, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
         """Send an HTTP request to the Bitcaster API with authentication."""
-        full_url = self.base_url + '/api/o/' + self.organization + path
+        full_url = self.base_url + "/api/o/" + self.organization + path
 
-        return requests.request(method, full_url,headers={
-                                    'Authorization': f'Key {self.api_key}',
-                                }, timeout=15, **kwargs)
+        return requests.request(
+            method,
+            full_url,
+            headers={
+                "Authorization": f"Key {self.api_key}",
+            },
+            timeout=15,
+            **kwargs,
+        )
 
-    def post(self, path: str, **kwargs: Any) -> requests.Response: # noqa: ANN401
+    def post(self, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
         """Send a POST request to the Bitcaster API."""
-        return self._request('post', path, **kwargs)
+        return self._request("post", path, **kwargs)
 
-    def delete(self, path: str, **kwargs: Any) -> requests.Response: # noqa: ANN401
+    def delete(self, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
         """Send a DELETE request to the Bitcaster API."""
-        return self._request('delete', path, **kwargs)
+        return self._request("delete", path, **kwargs)
 
-    def put(self, path: str, **kwargs: Any) -> requests.Response: # noqa: ANN401
+    def put(self, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
         """Send a PUT request to the Bitcaster API."""
-        return self._request('put', path, **kwargs)
+        return self._request("put", path, **kwargs)
 
-    def get(self, path: str, **kwargs: Any) -> requests.Response: # noqa: ANN401
+    def get(self, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
         """Send a GET request to the Bitcaster API."""
-        return self._request('get', path, **kwargs)
+        return self._request("get", path, **kwargs)
