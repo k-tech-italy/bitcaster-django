@@ -4,8 +4,10 @@ Mixins for interacting with the Bitcaster API.
 Includes helper classes to simplify common operations such as user creation
 and deletion via the Bitcaster client.
 """
-from bitcaster_django.client import Client
 import requests
+
+from bitcaster_django.client import Client
+
 
 class BitcasterUserMixin:
     """Mixin for managing Bitcaster user resources via the API."""
