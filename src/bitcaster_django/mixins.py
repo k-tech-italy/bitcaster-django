@@ -4,6 +4,7 @@ Mixins for interacting with the Bitcaster API.
 Includes helper classes to simplify common operations such as user creation
 and deletion via the Bitcaster client.
 """
+
 import requests
 
 from bitcaster_django.client import Client
@@ -19,8 +20,8 @@ class BitcasterUserMixin:
 
     def create(self) -> requests.Response:
         """Create a Bitcaster user using the stored email."""
-        return self.client.post('/u/', data={'email': self.email})
+        return self.client.post("/u/", data={"email": self.email})
 
     def delete(self) -> requests.Response:
         """Delete the Bitcaster user associated with the stored email."""
-        return self.client.delete(f'/u/{self.email}/')
+        return self.client.delete(f"/u/{self.email}/")
