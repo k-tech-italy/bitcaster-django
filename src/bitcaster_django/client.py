@@ -57,8 +57,10 @@ class Client:
     def _request(self, method: str, path: str, **kwargs: Any) -> requests.Response: # noqa: ANN401
         """Send an HTTP request to the Bitcaster API with authentication."""
         full_url = self.base_url + '/api/o/' + self.organization + path
-        return requests.request(method, full_url,
-                                headers={'Authorization': f'Key {self.api_key}'}, timeout=15, **kwargs)
+
+        return requests.request(method, full_url,headers={
+                                    'Authorization': f'Key {self.api_key}',
+                                }, timeout=15, **kwargs)
 
     def post(self, path: str, **kwargs: Any) -> requests.Response: # noqa: ANN401
         """Send a POST request to the Bitcaster API."""
