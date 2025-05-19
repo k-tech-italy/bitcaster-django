@@ -19,5 +19,5 @@ def test_user_delete(monkeypatch):
 
         bitcaster_user_mixin.delete()
 
-        mocked_request.assert_called_once_with('delete', 'http://dummyhost/api/o/dummyorg/u/example@mail',
+        mocked_request.assert_called_once_with('delete', 'http://dummyhost/api/o/dummyorg/u/example@mail/',
                                                timeout=15, headers={'Authorization': 'Key dummytoken'})
