@@ -1,9 +1,8 @@
+from unittest.mock import patch
+
 import pytest
 
 from bitcaster_django.client import Client
-
-from unittest.mock import patch
-
 from bitcaster_django.models import EventConfig
 
 

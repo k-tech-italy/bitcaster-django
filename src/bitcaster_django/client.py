@@ -10,10 +10,11 @@ import re
 from typing import Any
 
 import bitcaster_sdk
+import requests
 from django.shortcuts import get_object_or_404
 
 from bitcaster_django.models import EventConfig
-import requests
+
 
 class Client:
     """
