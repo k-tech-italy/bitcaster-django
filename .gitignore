@@ -15,3 +15,4 @@ build/
 !.pre-commit-config.yaml
 !bandit.yaml
 coverage.xml
+*.sqlite3

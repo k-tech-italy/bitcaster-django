@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 
@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "bitcaster_django.apps.Config",
+    "constance",
+    "bitcaster_django",
 ]
 
 MIDDLEWARE = [
@@ -73,7 +74,15 @@ WSGI_APPLICATION = "demo.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ".db.sqlite"},
+    "default": {
+        "ENGINE": os.environ.get(
+            "DATABASE_ENGINE", 'django.db.backends.sqlite3'
+        ),
+        "NAME": os.environ.get("DATABASE_NAME", str(BASE_DIR / "demo.sqlite3")),
+        "USER": os.environ.get("DATABASE_USER", 'postgres'),
+        "PASSWORD": os.environ.get("DATABASE_PASS", None),
+        "HOST": os.environ.get("DATABASE_HOST", 'localhost:5432')
+    },
 }
 # set to 'True' in production
 SESSION_COOKIE_SECURE = False
@@ -116,3 +125,23 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# bitcaster-django configuration
+# https://github.com/k-tech-italy/bitcaster-django
+
+BITCASTER = {
+    "BAE": os.environ.get("BITCASTER_BAE", "https://token-123@bitcaster.example.com/api/o/demo-org/"),
+    "DEBUG": False,
+    "SYNC_USERS": True,
+    "PROJECT": os.environ.get("BITCASTER_PROJECT_SLUG", "demo-project"),
+    "APPLICATION": os.environ.get("BITCASTER_APPLICATION", "demo-app"),
+}
+
+# django-constance (optional bitcaster-django runtime configuration)
+# https://django-constance.readthedocs.io/
+
+CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
+
+CONSTANCE_CONFIG = {
+    "BITCASTER_BAE": ("", "Bitcaster Application Endpoint"),
+}

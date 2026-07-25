@@ -1,1 +1,0 @@
-"""bitcaster-django specific signals."""

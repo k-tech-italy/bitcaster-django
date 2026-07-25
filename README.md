@@ -8,14 +8,14 @@
 -->
 
 
-bitcaster-django is a Django app.
+Bitcaster-django is a Django app for seamless integrating with [Bitcaster](https://docs.bitcaster.io/) system-to-user signal-to-message notification system.
 
-NOTE: Provide a more detailed description here.
+
 
 
 ## Dependencies
 
-* Python 3.9 or later
+* Python 3.10 or later
 * Django 4.2 or later
 
 
@@ -24,21 +24,73 @@ NOTE: Provide a more detailed description here.
 * Install bitcaster-django using your package manager of choice, e.g. Pip:
   ```bash
   pip install bitcaster-django
+  # or, with django-constance support for runtime configuration:
+  pip install bitcaster-django[constance]
   ```
 
 * Add bitcaster-django to `INSTALLED_APPS` in your `config/settings.py` file:
   ```python
   INSTALLED_APPS = (
       ...
-      "bitcaster-django",
+      "bitcaster_django",
       ...
   )
   ```
+
+* Configure the app with the `BITCASTER` dictionary in your `config/settings.py` file:
+  ```python
+  BITCASTER = {
+      # Bitcaster Application Endpoint.
+      # Falls back to the BITCASTER_BAE environment variable when empty/omitted.
+      "BAE": "https://<token>@<host>/api/o/<organization>/",
+      # forwarded to bitcaster_sdk.init() (optional, default: False)
+      "DEBUG": False,
+      # keep Bitcaster users aligned with Django users (optional, default: True)
+      "SYNC_USERS": True,
+      # project/application slugs used by Client.trigger_event() (optional)
+      "PROJECT": "myprj",
+      "APPLICATION": "myapp",
+  }
+  ```
+  The `bitcaster_sdk` client is initialized automatically at startup: no
+  `bitcaster_sdk.init()` call is needed in your code.
 
 * Check that your configuration is valid:
   ```bash
   python manage.py check
   ```
+
+## User synchronisation
+
+When `SYNC_USERS` is enabled (the default), a `post_save` handler on your
+`AUTH_USER_MODEL` keeps Bitcaster users aligned with Django users:
+
+* creating a Django user creates the matching Bitcaster user;
+* updating a Django user updates it (creating it if missing).
+
+Users without an email address are skipped, and any error while talking to
+Bitcaster is logged but never breaks the saving of the Django user.
+
+## Runtime configuration with django-constance (optional)
+
+With the `constance` extra installed, any `BITCASTER` key can be overridden at
+runtime by declaring a `BITCASTER_<KEY>` entry in `CONSTANCE_CONFIG`:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "constance",
+    "bitcaster_django",
+]
+
+CONSTANCE_CONFIG = {
+    "BITCASTER_BAE": ("", "Bitcaster Application Endpoint"),
+}
+```
+
+A non-empty constance value takes precedence over the `BITCASTER` dictionary,
+and the sdk client is reinitialized automatically whenever a `BITCASTER_*`
+constance key is updated.
 
 ## Bug reports and requests for enhancements
 
