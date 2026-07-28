@@ -5,6 +5,7 @@ import os
 import pathlib
 import sys
 
+
 SRC_DIR = pathlib.Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(SRC_DIR.absolute()))
 

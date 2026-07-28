@@ -1,14 +1,13 @@
 """bitcaster-django app config."""
 
 from django.apps import AppConfig
-from typing_extensions import override
 
 
 class Config(AppConfig):  # noqa: D101
     verbose_name = "bitcaster-django"
     name = "bitcaster_django"
 
-    @override
     def ready(self) -> None:
+        """Import checks module when the app is ready."""
         from . import checks  # noqa
         from . import signals  # noqa
