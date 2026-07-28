@@ -2,11 +2,11 @@ import logging
 from unittest.mock import patch
 
 import pytest
+from bitcaster_sdk.exceptions import EventNotFoundError
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 
-from bitcaster_sdk.exceptions import EventNotFoundError
 
 pytestmark = pytest.mark.django_db
 

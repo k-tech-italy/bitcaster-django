@@ -6,6 +6,7 @@ from typing import Any
 from django.apps import apps
 from django.conf import settings
 
+
 #: name of the dictionary in the Django settings holding the bitcaster configuration
 SETTINGS_KEY = "BITCASTER"
 

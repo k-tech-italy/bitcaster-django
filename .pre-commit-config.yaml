@@ -19,13 +19,17 @@ repos:
         hooks:
             -   id: pyproject-fmt
     -   repo: https://github.com/astral-sh/ruff-pre-commit
-        rev: "v0.11.9"
+        rev: "v0.16.0"
         hooks:
             -   id: ruff-format
                 args: [ "--config", "ruff.toml"]
+            -   id: ruff-check
+                args: ["--select", "I", "src", "test", "--config", "ruff.toml"]
             -   id: ruff
                 args: [ "--fix", "--unsafe-fixes", "--exit-non-zero-on-fix"]
     -   repo: meta
         hooks:
             -   id: check-hooks-apply
             -   id: check-useless-excludes
+
+#ruff check --select I src --config ruff.toml

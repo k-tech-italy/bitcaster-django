@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+
 import os
 from pathlib import Path
 
@@ -75,13 +76,11 @@ WSGI_APPLICATION = "demo.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get(
-            "DATABASE_ENGINE", 'django.db.backends.sqlite3'
-        ),
+        "ENGINE": os.environ.get("DATABASE_ENGINE", "django.db.backends.sqlite3"),
         "NAME": os.environ.get("DATABASE_NAME", str(BASE_DIR / "demo.sqlite3")),
-        "USER": os.environ.get("DATABASE_USER", 'postgres'),
+        "USER": os.environ.get("DATABASE_USER", "postgres"),
         "PASSWORD": os.environ.get("DATABASE_PASS", None),
-        "HOST": os.environ.get("DATABASE_HOST", 'localhost:5432')
+        "HOST": os.environ.get("DATABASE_HOST", "localhost:5432"),
     },
 }
 # set to 'True' in production

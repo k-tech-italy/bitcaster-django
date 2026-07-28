@@ -2,6 +2,7 @@ import pytest
 
 from bitcaster_django.models import EventConfig
 
+
 pytestmark = pytest.mark.django_db
 
 

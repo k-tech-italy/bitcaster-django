@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from django.core import checks
 
+
 if TYPE_CHECKING:
     from django.apps import AppConfig
 

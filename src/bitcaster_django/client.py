@@ -10,8 +10,10 @@ import urllib.parse
 from typing import Any
 
 import requests
-from bitcaster_sdk.client import Client as SdkClient
-from bitcaster_sdk.client import ctx
+from bitcaster_sdk.client import (
+    Client as SdkClient,
+    ctx,
+)
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import get_object_or_404
 

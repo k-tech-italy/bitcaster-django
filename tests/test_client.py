@@ -1,13 +1,16 @@
 from unittest.mock import patch
 
 import pytest
-from bitcaster_sdk.client import Client as SdkClient
-from bitcaster_sdk.client import ctx
+from bitcaster_sdk.client import (
+    Client as SdkClient,
+    ctx,
+)
 from django.core.exceptions import ImproperlyConfigured
 from django.test import override_settings
 
 from bitcaster_django.client import Client
 from bitcaster_django.models import EventConfig
+
 
 pytestmark = pytest.mark.django_db
 

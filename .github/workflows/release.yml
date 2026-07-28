@@ -2,13 +2,15 @@ name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
 
 on:
   push:
-    - develop
-    - main
-    - '**'
+    branches:
+      - develop
+      - main
+    tags:
+      - '*'
   release:
     types: [published]
-      
-      
+
+
 jobs:
   build:
     name: Build distribution 📦
@@ -41,7 +43,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/<package-name>
+      url: https://test.pypi.org/p/bitcaster-django
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing

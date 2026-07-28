@@ -14,6 +14,7 @@ from django.test.signals import setting_changed
 from .client import Client
 from .config import SETTINGS_KEY, app_settings
 
+
 try:
     from constance.signals import config_updated
 except ImportError:  # constance is an optional dependency

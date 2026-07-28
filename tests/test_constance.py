@@ -1,13 +1,14 @@
 from unittest.mock import patch
 
 import pytest
+from bitcaster_sdk import client
 from constance import config
 from constance.signals import config_updated
 from django.apps import apps
 from django.core.signals import request_started
 
-from bitcaster_sdk import client
 from bitcaster_django.config import app_settings
+
 
 pytestmark = pytest.mark.django_db
 

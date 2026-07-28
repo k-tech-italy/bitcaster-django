@@ -1,6 +1,6 @@
+from bitcaster_sdk import client
 from django.test import override_settings
 
-from bitcaster_sdk import client
 from bitcaster_django.config import app_settings
 
 

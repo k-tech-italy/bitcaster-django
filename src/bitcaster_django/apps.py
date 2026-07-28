@@ -7,6 +7,7 @@ from bitcaster_sdk.exceptions import ConfigurationError
 from django.apps import AppConfig
 from typing_extensions import override
 
+
 logger = logging.getLogger(__name__)
 
 
