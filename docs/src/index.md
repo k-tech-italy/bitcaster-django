@@ -2,14 +2,16 @@
 title: Documentation
 ---
 
-bitcaster-django is a Django app.
-
-TODO: Provide a more detailed description here.
+Bitcaster-django is a Django app that integrates your project with
+[Bitcaster](https://docs.bitcaster.io/), the system-to-user signal-to-message
+notification system: it lets you trigger remote Bitcaster events from local,
+database-configured event names and manage Bitcaster users from your Django
+application.
 
 
 ## Dependencies
 
-* Python 3.9 or later
+* Python 3.8 or later
 * Django 4.2 or any later version supporting your Python version of choice.
 
 
@@ -20,19 +22,26 @@ TODO: Provide a more detailed description here.
   pip install bitcaster-django
   ```
 
-* Add `bitcaster-django` to `INSTALLED_APPS` in your `config/settings.py` file:
+* Add bitcaster-django to `INSTALLED_APPS` in your `config/settings.py` file:
   ```python
   INSTALLED_APPS = (
       ...
-      "bitcaster-django",
+      "bitcaster_django",
       ...
   )
+  ```
+
+* Run the migrations to create the event configuration table:
+  ```bash
+  python manage.py migrate
   ```
 
 * Check that your configuration is valid:
   ```bash
   python manage.py check
   ```
+
+See [Getting started](usage.md) for configuration and usage.
 
 ## Bug reports and requests for enhancements
 

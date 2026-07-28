@@ -2,7 +2,7 @@
 
 ## Using the issue tracker
 
-You can suggest features, enhancements, or report bugs on our [issue tracker](https://github.com/k-tech-italy/example-project/issues).
+You can suggest features, enhancements, or report bugs on our [issue tracker](https://github.com/k-tech-italy/bitcaster-django/issues).
 
 You can also use the issue tracker to find an open issue for you to work on. Please mention in the issue that you are working on it.
 
@@ -17,18 +17,18 @@ To start working on this project:
 
 ```bash
 # using HTTPS
-git clone https://github.com/k-tech-italy/example-project.git
+git clone https://github.com/k-tech-italy/bitcaster-django.git
 
 # using SSH
-git clone git@github.com:k-tech-italy/example-project.git
+git clone git@github.com:k-tech-italy/bitcaster-django.git
 ```
-  
+
 * If you use [direnv](https://direnv.net/), copy the `.envrc.example` file as follows, otherwise skip this step:
 
 ```bash
 cp .envrc.example .envrc
 ```
-  
+
 * Create a virtual environment for the project using uv. Make sure you use the earliest supported Python version:
 
 ```bash
@@ -37,7 +37,7 @@ uv venv create --python 3.9
 # if you're not using direnv, you need to manually activate the virtual environment
 source .venv/bin/activate
 ```
-  
+
 * Install the project's dependencies:
 
 ```bash
