@@ -7,19 +7,26 @@ from bitcaster_django.models import EventConfig
 
 
 def test_create_client_without_bitcaster_bae_variable(monkeypatch):
-    monkeypatch.delenv('BITCASTER_BAE', False)
-    with pytest.raises(RuntimeError, match='Missing required environment variable BITCASTER_BAE'):
+    monkeypatch.delenv("BITCASTER_BAE", False)
+    with pytest.raises(RuntimeError, match="Missing required environment variable BITCASTER_BAE"):
         Client()
 
 
 @pytest.mark.parametrize(
-    'bitcaster_bae', ['some_random_string', 'dummytoken@dummyhost/api/o/dummyorg',
-                      'https://dummytoken@dummyhost/dummyorg', 'https://dummytoken@dummyhost/api/o/',
-                      'https://dummyhost/api/o/dummyorg', 12345, 'https:/dummytoken@dummyhost/api/o/dummyorg']
+    "bitcaster_bae",
+    [
+        "some_random_string",
+        "dummytoken@dummyhost/api/o/dummyorg",
+        "https://dummytoken@dummyhost/dummyorg",
+        "https://dummytoken@dummyhost/api/o/",
+        "https://dummyhost/api/o/dummyorg",
+        12345,
+        "https:/dummytoken@dummyhost/api/o/dummyorg",
+    ],
 )
 def test_create_client_with_incorrect_bitcaster_bae_variable(monkeypatch, bitcaster_bae):
-    monkeypatch.setenv('BITCASTER_BAE', bitcaster_bae)
-    with pytest.raises(RuntimeError, match='Invalid BITCASTER_BAE format'):
+    monkeypatch.setenv("BITCASTER_BAE", bitcaster_bae)
+    with pytest.raises(RuntimeError, match="Invalid BITCASTER_BAE format"):
         Client()
 
 
@@ -63,25 +70,20 @@ def test_trigger_event_without_env_variables(monkeypatch, env_variable):
             client.trigger_event("example_local_name")
 
 
-@pytest.mark.parametrize(
-    'method', [('post'), ('delete'), ('put'), ('get')]
-)
+@pytest.mark.parametrize("method", [("post"), ("delete"), ("put"), ("get")])
 def test_client_request(monkeypatch, method):
     client = Client()
-    url = '/example_url/'
-    data = {'example_key_1': 'example_data_1', 'example_key_2': 'example_data_2'}
-    method_map = {
-        'post': client.post,
-        'delete': client.delete,
-        'put': client.put,
-        'get': client.get
-    }
-    with patch('requests.request') as mock_request:
-
+    url = "/example_url/"
+    data = {"example_key_1": "example_data_1", "example_key_2": "example_data_2"}
+    method_map = {"post": client.post, "delete": client.delete, "put": client.put, "get": client.get}
+    with patch("requests.request") as mock_request:
         method_map[method](url, data=data)
 
         mock_request.assert_called_once()
-        mock_request.assert_called_with(method, 'http://dummyhost/api/o/dummyorg/example_url/',
-                                        headers={'Authorization': 'Key dummytoken'},
-                                        timeout=15,
-                                        data={'example_key_1': 'example_data_1', 'example_key_2': 'example_data_2'})
+        mock_request.assert_called_with(
+            method,
+            "https://dummyhost/api/o/dummyorg/example_url/",
+            headers={"Authorization": "Key dummytoken"},
+            timeout=15,
+            data={"example_key_1": "example_data_1", "example_key_2": "example_data_2"},
+        )

@@ -29,14 +29,14 @@ class Client:
         if not bitcaster_bae:
             raise RuntimeError("Missing required environment variable BITCASTER_BAE")
 
-        match = re.match(r"https?:\/\/([^@]+)@([^\/]+)\/api\/o\/([^\/]+)\/", bitcaster_bae)
+        match = re.match(r"(https?):\/\/([^@]+)@([^\/]+)\/api\/o\/([^\/]+)\/", bitcaster_bae)
 
         if not match:
             raise RuntimeError("Invalid BITCASTER_BAE format")
 
-        self.api_key = match.group(1)
-        self.base_url = "http://" + match.group(2)
-        self.organization = match.group(3)
+        self.api_key = match.group(2)
+        self.base_url = match.group(1) + "://" + match.group(3)
+        self.organization = match.group(4)
 
     def trigger_event(self, event_name: str) -> None:
         """Triggers a remote event in Bitcaster based on the given local event name."""
