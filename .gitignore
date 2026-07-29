@@ -16,3 +16,4 @@ build/
 !bandit.yaml
 coverage.xml
 *.sqlite3
+src/bitcaster_django/version.py
