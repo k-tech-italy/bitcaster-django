@@ -6,70 +6,96 @@ title: Getting started
 
 ## Configuration
 
-bitcaster-django is configured with environment variables:
+Add `bitcaster_django` to `INSTALLED_APPS` and configure the app with the
+`BITCASTER` dictionary in your settings:
 
-| Variable                 | Required | Description                                                                     |
-|--------------------------|----------|---------------------------------------------------------------------------------|
-| `BITCASTER_BAE`          | yes      | Bitcaster Application Endpoint: `https://<token>@<host>/api/o/<organization>/`   |
-| `BITCASTER_PROJECT_SLUG` | yes*     | Slug of the Bitcaster project the events belong to                               |
-| `BITCASTER_APPLICATION`  | yes*     | Slug of the Bitcaster application the events belong to                           |
+```python
+INSTALLED_APPS = [
+    ...
+    "bitcaster_django",
+]
 
-\* required to trigger events with `Client.trigger_event()`.
+BITCASTER = {
+    # Bitcaster Application Endpoint.
+    # Falls back to the BITCASTER_BAE environment variable when empty/omitted.
+    "BAE": "https://<token>@<host>/api/o/<organization>/",
+    # forwarded to bitcaster_sdk.init() (optional, default: False)
+    "DEBUG": False,
+    # keep Bitcaster users aligned with Django users (optional, default: True)
+    "SYNC_USERS": True,
+    # project/application slugs used by Client.trigger_event().
+    # Fall back to the BITCASTER_PROJECT_SLUG / BITCASTER_APPLICATION
+    # environment variables when empty/omitted.
+    "PROJECT": "myprj",
+    "APPLICATION": "myapp",
+}
+```
 
-The BAE embeds the API token, so treat it as a secret. A `RuntimeError` is
-raised when `BITCASTER_BAE` is missing or does not match the expected format
-(note the trailing slash after the organization).
+All keys except `BAE`, `SYNC_USERS`, `PROJECT` and `APPLICATION` are forwarded (lowercased) to
+[`bitcaster_sdk.init()`](https://github.com/bitcaster-io/bitcaster-sdk), so any
+bitcaster-sdk option can be configured from the dictionary.
+
+The configuration is validated by the Django system check framework:
+
+```bash
+python manage.py check
+```
 
 ## Usage
 
-### Triggering events
-
-Bitcaster events are triggered by a **local name**, decoupled from the remote
-event slug. The mapping lives in the `EventConfig` model
-(`local_name` → `remote_event_slug`); create the mappings from the Django
-admin, a data migration, or the shell:
+The `bitcaster_sdk` client is initialized automatically when Django starts:
+just use the sdk API anywhere in your code:
 
 ```python
-from bitcaster_django.models import EventConfig
+import bitcaster_sdk
 
-EventConfig.objects.create(local_name="user-signed-up", remote_event_slug="signup")
+bitcaster_sdk.trigger(project="myprj", application="myapp", event="signup", context={...})
 ```
 
-then trigger the remote event by its local name:
+### User synchronisation
+
+When `SYNC_USERS` is enabled (the default), a `post_save` handler on your
+`AUTH_USER_MODEL` keeps Bitcaster users aligned with Django users:
+
+* creating a Django user creates the matching Bitcaster user;
+* updating a Django user updates it (creating it if missing).
+
+Users without an email address are skipped, and any error while talking to
+Bitcaster is logged (logger `bitcaster_django.handlers`) but never breaks the
+saving of the Django user.
+
+### Runtime configuration with django-constance
+
+Install the optional extra:
+
+```bash
+pip install bitcaster-django[constance]
+```
+
+then add `constance` to `INSTALLED_APPS` and declare the `BITCASTER` keys you
+want to manage at runtime as `BITCASTER_<KEY>` constance keys:
 
 ```python
-from bitcaster_django.client import Client
+INSTALLED_APPS = [
+    ...
+    "constance",
+    "bitcaster_django",
+]
 
-client = Client()
-client.trigger_event("user-signed-up")
+CONSTANCE_CONFIG = {
+    "BITCASTER_BAE": ("", "Bitcaster Application Endpoint"),
+}
 ```
 
-`trigger_event()` resolves the local name to the remote slug and triggers the
-event on the project/application identified by `BITCASTER_PROJECT_SLUG` and
-`BITCASTER_APPLICATION`.
+Configuration resolution order:
 
-### Managing Bitcaster users
+1. constance `BITCASTER_<KEY>` key (when declared and non-empty)
+2. the `BITCASTER` settings dictionary
+3. the `BITCASTER_BAE` environment variable (`BAE` only)
+4. built-in defaults
 
-`BitcasterUserMixin` wraps the Bitcaster user API, keyed by email:
-
-```python
-from bitcaster_django.mixins import BitcasterUserMixin
-
-user = BitcasterUserMixin(email="jane@example.com")
-user.create()   # create the Bitcaster user
-user.delete()   # delete the Bitcaster user
-```
-
-### Low-level API access
-
-For endpoints not covered above, `Client` exposes authenticated helpers that
-return the raw `requests.Response`, with paths relative to the organization
-(`/api/o/<organization>`):
-
-```python
-client = Client()
-client.get("/u/")                              # list users
-client.post("/u/", data={"email": "jane@example.com"})
-client.put(...)
-client.delete("/u/jane@example.com/")
-```
+The sdk client is reinitialized automatically whenever a `BITCASTER_*`
+constance key is updated (`config_updated` signal), so the endpoint can be
+changed from the admin without restarting the application. At startup the
+client is initialized from the static settings; any value stored in constance
+is picked up on the first request.

@@ -1,85 +1,69 @@
-"""Client module for triggering Bitcaster events.
+"""Client module for interacting with Bitcaster.
 
-This module defines a `Client` class that integrates with Bitcaster,
-retrieving event configuration from the local database and triggering
-remote events based on the provided event name.
+Defines a `Client` facade over the bitcaster-sdk client initialized at
+startup by `bitcaster_django.apps.Config.ready()`: it maps local event names
+(`EventConfig`) to remote Bitcaster events and wraps the sdk user management
+API. All Bitcaster calls made by the application should go through this class.
 """
 
-import os
-import re
+import urllib.parse
 from typing import Any
 
-import bitcaster_sdk
 import requests
+from bitcaster_sdk.client import (
+    Client as SdkClient,
+    ctx,
+)
+from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import get_object_or_404
 
+from bitcaster_django.config import SETTINGS_KEY, app_settings
 from bitcaster_django.models import EventConfig
 
 
 class Client:
     """
-    Client responsible for triggering remote events via Bitcaster.
+    Facade over the bitcaster-sdk client for triggering remote events and managing users.
 
-    Uses local event configuration stored in the database to map local event
-    names to remote Bitcaster event slugs and sends the corresponding trigger.
+    Relies on the sdk client initialized at startup from the ``BITCASTER``
+    settings dictionary; uses local event configuration stored in the database
+    to map local event names to remote Bitcaster event slugs.
     """
 
     def __init__(self) -> None:
-        bitcaster_bae = os.getenv("BITCASTER_BAE")
-        if not bitcaster_bae:
-            raise RuntimeError("Missing required environment variable BITCASTER_BAE")
+        if ctx.get().transport is None:
+            raise ImproperlyConfigured(
+                f"The bitcaster-sdk client is not initialized: check the {SETTINGS_KEY} setting."
+            )
 
-        match = re.match(r"(https?):\/\/([^@]+)@([^\/]+)\/api\/o\/([^\/]+)\/", bitcaster_bae)
+    @property
+    def sdk(self) -> SdkClient:
+        """Return the bitcaster-sdk client initialized at startup."""
+        return ctx.get()
 
-        if not match:
-            raise RuntimeError("Invalid BITCASTER_BAE format")
-
-        self.api_key = match.group(2)
-        self.base_url = match.group(1) + "://" + match.group(3)
-        self.organization = match.group(4)
-
-    def trigger_event(self, event_name: str) -> None:
-        """Triggers a remote event in Bitcaster based on the given local event name."""
+    def trigger_event(self, event_name: str, context: "dict[str, str] | None" = None, **kwargs: Any) -> Any:  # noqa: ANN401
+        """Trigger the remote Bitcaster event mapped to the given local event name."""
         mapping = get_object_or_404(EventConfig, local_name=event_name)
-        bitcaster_sdk.init()
-        from bitcaster_sdk import trigger
-
-        project = os.getenv("BITCASTER_PROJECT_SLUG")
-        application = os.getenv("BITCASTER_APPLICATION")
-
+        project = app_settings.project
+        application = app_settings.application
         if not project:
-            raise RuntimeError("Missing required environment variable BITCASTER_PROJECT_SLUG")
+            raise ImproperlyConfigured(f"Missing PROJECT in the {SETTINGS_KEY} setting.")
         if not application:
-            raise RuntimeError("Missing required environment variable BITCASTER_APPLICATION")
-
-        trigger(project=project, application=application, event=mapping.remote_event_slug)
-
-    def _request(self, method: str, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
-        """Send an HTTP request to the Bitcaster API with authentication."""
-        full_url = self.base_url + "/api/o/" + self.organization + path
-
-        return requests.request(
-            method,
-            full_url,
-            headers={
-                "Authorization": f"Key {self.api_key}",
-            },
-            timeout=15,
-            **kwargs,
+            raise ImproperlyConfigured(f"Missing APPLICATION in the {SETTINGS_KEY} setting.")
+        return self.sdk.trigger(
+            project=project, application=application, event=mapping.remote_event_slug, context=context, **kwargs
         )
 
-    def post(self, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
-        """Send a POST request to the Bitcaster API."""
-        return self._request("post", path, **kwargs)
+    def add_user(self, email: str, first_name: str = "", last_name: str = "") -> Any:  # noqa: ANN401
+        """Create a Bitcaster user with the given email."""
+        return self.sdk.add_user(email, first_name, last_name)
 
-    def delete(self, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
-        """Send a DELETE request to the Bitcaster API."""
-        return self._request("delete", path, **kwargs)
+    def update_user(self, email: str, first_name: str = "", last_name: str = "") -> Any:  # noqa: ANN401
+        """Update the Bitcaster user with the given email."""
+        return self.sdk.update_user(email, first_name, last_name)
 
-    def put(self, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
-        """Send a PUT request to the Bitcaster API."""
-        return self._request("put", path, **kwargs)
-
-    def get(self, path: str, **kwargs: Any) -> requests.Response:  # noqa: ANN401
-        """Send a GET request to the Bitcaster API."""
-        return self._request("get", path, **kwargs)
+    def delete_user(self, email: str) -> requests.Response:
+        """Delete the Bitcaster user with the given email."""
+        # the sdk does not expose user deletion (yet): go through its transport
+        transport = self.sdk.transport
+        return transport.session.delete(transport.get_url(f"u/{urllib.parse.quote(email)}/"))

@@ -32,7 +32,7 @@ cp .envrc.example .envrc
 * Create a virtual environment for the project using uv. Make sure you use the earliest supported Python version:
 
 ```bash
-uv venv create --python 3.9
+uv venv create --python 3.10
 
 # if you're not using direnv, you need to manually activate the virtual environment
 source .venv/bin/activate

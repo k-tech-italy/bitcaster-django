@@ -7,11 +7,10 @@
 [![codecov](https://codecov.io/github/k-tech-italy/bitcaster-django/graph/badge.svg?token=BNXEW4JAYF)](https://codecov.io/github/k-tech-italy/bitcaster-django)
 -->
 
-Bitcaster-django is a Django app that integrates your project with
-[Bitcaster](https://docs.bitcaster.io/), the system-to-user signal-to-message
-notification system: it lets you trigger remote Bitcaster events from local,
-database-configured event names and manage Bitcaster users from your Django
-application.
+
+Bitcaster-django is a Django app for seamless integrating with [Bitcaster](https://docs.bitcaster.io/) system-to-user signal-to-message notification system.
+
+
 
 
 ## Dependencies
@@ -25,6 +24,8 @@ application.
 * Install bitcaster-django using your package manager of choice, e.g. Pip:
   ```bash
   pip install bitcaster-django
+  # or, with django-constance support for runtime configuration:
+  pip install bitcaster-django[constance]
   ```
 
 * Add bitcaster-django to `INSTALLED_APPS` in your `config/settings.py` file:
@@ -36,41 +37,60 @@ application.
   )
   ```
 
-* Run the migrations to create the event configuration table:
-  ```bash
-  python manage.py migrate
+* Configure the app with the `BITCASTER` dictionary in your `config/settings.py` file:
+  ```python
+  BITCASTER = {
+      # Bitcaster Application Endpoint.
+      # Falls back to the BITCASTER_BAE environment variable when empty/omitted.
+      "BAE": "https://<token>@<host>/api/o/<organization>/",
+      # forwarded to bitcaster_sdk.init() (optional, default: False)
+      "DEBUG": False,
+      # keep Bitcaster users aligned with Django users (optional, default: True)
+      "SYNC_USERS": True,
+      # project/application slugs used by Client.trigger_event() (optional)
+      "PROJECT": "myprj",
+      "APPLICATION": "myapp",
+  }
   ```
+  The `bitcaster_sdk` client is initialized automatically at startup: no
+  `bitcaster_sdk.init()` call is needed in your code.
 
 * Check that your configuration is valid:
   ```bash
   python manage.py check
   ```
 
-## Configuration
+## User synchronisation
 
-The app is configured with environment variables:
+When `SYNC_USERS` is enabled (the default), a `post_save` handler on your
+`AUTH_USER_MODEL` keeps Bitcaster users aligned with Django users:
 
-| Variable                 | Required | Description                                                                        |
-|--------------------------|----------|------------------------------------------------------------------------------------|
-| `BITCASTER_BAE`          | yes      | Bitcaster Application Endpoint: `https://<token>@<host>/api/o/<organization>/`      |
-| `BITCASTER_PROJECT_SLUG` | yes*     | Slug of the Bitcaster project the events belong to                                  |
-| `BITCASTER_APPLICATION`  | yes*     | Slug of the Bitcaster application the events belong to                              |
+* creating a Django user creates the matching Bitcaster user;
+* updating a Django user updates it (creating it if missing).
 
-\* required to trigger events with `Client.trigger_event()`.
+Users without an email address are skipped, and any error while talking to
+Bitcaster is logged but never breaks the saving of the Django user.
 
-## Usage
+## Runtime configuration with django-constance (optional)
 
-Map a local event name to a remote Bitcaster event slug with the `EventConfig`
-model, then trigger it by its local name:
+With the `constance` extra installed, any `BITCASTER` key can be overridden at
+runtime by declaring a `BITCASTER_<KEY>` entry in `CONSTANCE_CONFIG`:
 
 ```python
-from bitcaster_django.client import Client
+INSTALLED_APPS = [
+    ...
+    "constance",
+    "bitcaster_django",
+]
 
-Client().trigger_event("user-signed-up")
+CONSTANCE_CONFIG = {
+    "BITCASTER_BAE": ("", "Bitcaster Application Endpoint"),
+}
 ```
 
-See the [documentation](https://k-tech-italy.github.io/bitcaster-django/) for
-the full usage guide, including Bitcaster user management.
+A non-empty constance value takes precedence over the `BITCASTER` dictionary,
+and the sdk client is reinitialized automatically whenever a `BITCASTER_*`
+constance key is updated.
 
 ## Bug reports and requests for enhancements
 
@@ -79,3 +99,7 @@ Please open an issue on the project's [issue tracker on GitHub](https://github.c
 ## Contributing to the project
 
 See the [contribution guide](CONTRIBUTING.md).
+
+## Licensing
+
+All rights reserved.

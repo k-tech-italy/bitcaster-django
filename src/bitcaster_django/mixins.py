@@ -5,6 +5,8 @@ Includes helper classes to simplify common operations such as user creation
 and deletion via the Bitcaster client.
 """
 
+from typing import Any
+
 import requests
 
 from bitcaster_django.client import Client
@@ -18,10 +20,10 @@ class BitcasterUserMixin:
         self.client = Client()
         self.email = email
 
-    def create(self) -> requests.Response:
+    def create(self) -> Any:  # noqa: ANN401
         """Create a Bitcaster user using the stored email."""
-        return self.client.post("/u/", data={"email": self.email})
+        return self.client.add_user(self.email)
 
     def delete(self) -> requests.Response:
         """Delete the Bitcaster user associated with the stored email."""
-        return self.client.delete(f"/u/{self.email}/")
+        return self.client.delete_user(self.email)

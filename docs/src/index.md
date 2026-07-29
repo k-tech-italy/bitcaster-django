@@ -11,7 +11,7 @@ application.
 
 ## Dependencies
 
-* Python 3.8 or later
+* Python 3.10 or later
 * Django 4.2 or any later version supporting your Python version of choice.
 
 
