@@ -28,11 +28,13 @@ def test_client_requires_initialized_sdk() -> None:
 
 def test_trigger_event() -> None:
     EventConfig.objects.create(local_name="example_local_name", remote_event_slug="example_remote_slug")
-    with patch("bitcaster_sdk.client.Client.trigger") as trigger:
+    with (
+        patch("bitcaster_sdk.client.Client.set_domain") as set_domain,
+        patch("bitcaster_sdk.client.Client.trigger_event") as trigger_event,
+    ):
         Client().trigger_event("example_local_name", context={"key": "value"})
-    trigger.assert_called_once_with(
-        project="demo-project", application="demo-app", event="example_remote_slug", context={"key": "value"}
-    )
+    set_domain.assert_called_once_with("demo-project", "demo-app")
+    trigger_event.assert_called_once_with("example_remote_slug", context={"key": "value"})
 
 
 @pytest.mark.parametrize("key", ["PROJECT", "APPLICATION"])

@@ -38,8 +38,7 @@ wheels = [
 
 [[package]]
 name = "bitcaster-django"
-version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "bitcaster-sdk" },
     { name = "django" },
@@ -94,8 +93,8 @@ dev = [
 
 [[package]]
 name = "bitcaster-sdk"
-version = "0.3.dev11+ge2a86ab17"
-source = { git = "https://github.com/bitcaster-io/bitcaster-sdk.git?branch=develop#e2a86ab173c6b835570ce053d1b870f4537ba082" }
+version = "0.3"
+source = { git = "https://github.com/bitcaster-io/bitcaster-sdk.git?branch=develop#db7dcb164178c061e0275072e30f9551bb0b3cc6" }
 dependencies = [
     { name = "click" },
     { name = "humanfriendly" },

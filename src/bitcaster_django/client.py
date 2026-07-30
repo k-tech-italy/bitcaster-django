@@ -50,9 +50,9 @@ class Client:
             raise ImproperlyConfigured(f"Missing PROJECT in the {SETTINGS_KEY} setting.")
         if not application:
             raise ImproperlyConfigured(f"Missing APPLICATION in the {SETTINGS_KEY} setting.")
-        return self.sdk.trigger(
-            project=project, application=application, event=mapping.remote_event_slug, context=context, **kwargs
-        )
+        # set_domain() on every call: PROJECT/APPLICATION may change at runtime via constance
+        self.sdk.set_domain(project, application)
+        return self.sdk.trigger_event(mapping.remote_event_slug, context=context, **kwargs)
 
     def add_user(self, email: str, first_name: str = "", last_name: str = "") -> Any:  # noqa: ANN401
         """Create a Bitcaster user with the given email."""
