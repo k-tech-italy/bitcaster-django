@@ -10,12 +10,26 @@
 
 Bitcaster-django is a Django app for seamless integrating with [Bitcaster](https://docs.bitcaster.io/) system-to-user signal-to-message notification system.
 
+## Features
 
-
+* **Zero-configuration setup** — the `bitcaster_sdk` client is initialized
+  automatically at startup from the `BITCASTER` settings dictionary (or the
+  `BITCASTER_BAE` environment variable): no `bitcaster_sdk.init()` call needed.
+* **Event triggering** — a `Client` facade triggers remote Bitcaster events by
+  local name, using the `EventConfig` model to map local event names to remote
+  event slugs.
+* **User synchronisation** — Bitcaster users are kept aligned with your Django
+  users automatically (creation and updates), with helper mixins for user
+  management.
+* **Runtime configuration** — with the optional `constance` extra, any
+  `BITCASTER` setting can be changed at runtime through django-constance; the
+  sdk client is reinitialized automatically on changes.
+* **System checks** — the configuration is validated via Django's system check
+  framework (`python manage.py check`).
 
 ## Dependencies
 
-* Python 3.8 or later
+* Python 3.10 or later
 * Django 4.2 or later
 
 
