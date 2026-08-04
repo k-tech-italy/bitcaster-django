@@ -53,13 +53,53 @@ python manage.py check
 
 ## Usage
 
-The `bitcaster_sdk` client is initialized automatically when Django starts:
-just use the sdk API anywhere in your code:
+### Triggering events
+
+Map a local event name to a remote Bitcaster event slug with the `EventConfig`
+model (e.g. from the Django admin or a data migration):
+
+```python
+from bitcaster_django.models import EventConfig
+
+EventConfig.objects.create(local_name="signup", remote_event_slug="user-signup")
+```
+
+then trigger the event by its local name through the `Client` facade:
+
+```python
+from bitcaster_django.client import Client
+
+Client().trigger_event("signup", context={"username": user.username})
+```
+
+The event is triggered on the configured `PROJECT`/`APPLICATION`. Keeping the
+mapping in the database decouples the names used in your code from the slugs
+defined on the Bitcaster server, so they can be changed without redeploying.
+
+### Managing users
+
+The `Client` facade also wraps the sdk user management API:
+
+```python
+from bitcaster_django.client import Client
+
+client = Client()
+client.add_user("user@example.com", "First", "Last")
+client.update_user("user@example.com", "First", "Last")
+client.delete_user("user@example.com")
+```
+
+### Using the sdk directly
+
+The `bitcaster_sdk` client is initialized automatically when Django starts, so
+the [bitcaster-sdk](https://github.com/bitcaster-io/bitcaster-sdk) API can also
+be used directly anywhere in your code — no `bitcaster_sdk.init()` call needed:
 
 ```python
 import bitcaster_sdk
 
-bitcaster_sdk.trigger(project="myprj", application="myapp", event="signup", context={...})
+bitcaster_sdk.ping()
+bitcaster_sdk.list_users()
 ```
 
 ### User synchronisation
@@ -101,8 +141,10 @@ Configuration resolution order:
 
 1. constance `BITCASTER_<KEY>` key (when declared and non-empty)
 2. the `BITCASTER` settings dictionary
-3. the `BITCASTER_BAE` environment variable (`BAE` only)
-4. built-in defaults
+3. built-in defaults
+4. the environment variables, when the resolved value is empty
+   (`BITCASTER_BAE`, `BITCASTER_PROJECT_SLUG` and `BITCASTER_APPLICATION` for
+   `BAE`, `PROJECT` and `APPLICATION` respectively)
 
 The sdk client is reinitialized automatically whenever a `BITCASTER_*`
 constance key is updated (`config_updated` signal), so the endpoint can be
