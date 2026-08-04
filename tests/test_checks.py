@@ -21,6 +21,27 @@ def test_invalid_bae() -> None:
         assert _ids(run_checks(tags=["bitcaster"])) == ["bitcaster_django.E002"]
 
 
+def test_unimportable_client() -> None:
+    with override_settings(
+        BITCASTER={
+            "BAE": "https://token@host.example.com/api/o/org/",
+            "CLIENT": "no.such.module.Client",
+        }
+    ):
+        assert _ids(run_checks(tags=["bitcaster"])) == ["bitcaster_django.E003"]
+
+
+def test_invalid_client_class() -> None:
+    # importable, but not a bitcaster-sdk client
+    with override_settings(
+        BITCASTER={
+            "BAE": "https://token@host.example.com/api/o/org/",
+            "CLIENT": "bitcaster_django.client.Client",
+        }
+    ):
+        assert _ids(run_checks(tags=["bitcaster"])) == ["bitcaster_django.E003"]
+
+
 def test_unknown_key() -> None:
     with override_settings(
         BITCASTER={

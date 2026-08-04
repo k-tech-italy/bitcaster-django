@@ -9,7 +9,7 @@ from django.core import checks
 if TYPE_CHECKING:
     from django.apps import AppConfig
 
-from bitcaster_sdk.client import Client
+from bitcaster_sdk.abstract_client import AbstractClient
 
 from .config import DEFAULTS, SETTINGS_KEY, app_settings, get_user_settings
 
@@ -30,7 +30,7 @@ def check_bitcaster_settings(app_configs: "list[AppConfig] | None", **kwargs: ob
         )
     else:
         url = bae if bae.endswith("/") else f"{bae}/"
-        if not re.match(Client.url_regex, url):
+        if not re.match(AbstractClient.url_regex, url):
             messages.append(
                 checks.Error(
                     f"'{bae}' is not a valid Bitcaster BAE.",
@@ -38,6 +38,23 @@ def check_bitcaster_settings(app_configs: "list[AppConfig] | None", **kwargs: ob
                     id="bitcaster_django.E002",
                 )
             )
+    client_error = ""
+    try:
+        client_class = app_settings.client_class
+        if not (isinstance(client_class, type) and issubclass(client_class, AbstractClient)):
+            client_error = f"'{app_settings.CLIENT}' is not a bitcaster-sdk client class."
+    except ImportError:
+        client_error = f"Cannot import '{app_settings.CLIENT}'."
+    if client_error:
+        messages.append(
+            checks.Error(
+                client_error,
+                hint="CLIENT must be the fully qualified name of a "
+                "'bitcaster_sdk.abstract_client.AbstractClient' subclass, "
+                "e.g. 'bitcaster_sdk.client.Client' or 'bitcaster_sdk.async_client.AsyncClient'.",
+                id="bitcaster_django.E003",
+            )
+        )
     messages.extend(
         checks.Warning(
             f"Unknown key '{key}' in the {SETTINGS_KEY} setting.",

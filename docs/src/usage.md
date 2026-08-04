@@ -19,7 +19,7 @@ BITCASTER = {
     # Bitcaster Application Endpoint.
     # Falls back to the BITCASTER_BAE environment variable when empty/omitted.
     "BAE": "https://<token>@<host>/api/o/<organization>/",
-    # forwarded to bitcaster_sdk.init() (optional, default: False)
+    # forwarded to the sdk client (optional, default: False)
     "DEBUG": False,
     # keep Bitcaster users aligned with Django users (optional, default: True)
     "SYNC_USERS": True,
@@ -28,12 +28,22 @@ BITCASTER = {
     # environment variables when empty/omitted.
     "PROJECT": "myprj",
     "APPLICATION": "myapp",
+    # fully qualified name of the sdk client class to use
+    # (optional, default: "bitcaster_sdk.client.Client")
+    "CLIENT": "bitcaster_sdk.async_client.AsyncClient",
 }
 ```
 
-All keys except `BAE`, `SYNC_USERS`, `PROJECT` and `APPLICATION` are forwarded (lowercased) to
-[`bitcaster_sdk.init()`](https://github.com/bitcaster-io/bitcaster-sdk), so any
-bitcaster-sdk option can be configured from the dictionary.
+All keys except `BAE`, `SYNC_USERS`, `PROJECT`, `APPLICATION` and `CLIENT` are
+forwarded (lowercased) to the
+[bitcaster-sdk](https://github.com/bitcaster-io/bitcaster-sdk) client
+constructor, so any bitcaster-sdk option can be configured from the dictionary.
+
+`CLIENT` selects the sdk client implementation: the default
+`bitcaster_sdk.client.Client` blocks on every call, while
+`bitcaster_sdk.async_client.AsyncClient` runs requests on a background thread
+and returns `concurrent.futures.Future` objects. Any other fully qualified
+name of a `bitcaster_sdk.abstract_client.AbstractClient` subclass works too.
 
 The configuration is validated by the Django system check framework:
 

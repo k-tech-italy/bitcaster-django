@@ -57,13 +57,16 @@ Bitcaster-django is a Django app for seamless integrating with [Bitcaster](https
       # Bitcaster Application Endpoint.
       # Falls back to the BITCASTER_BAE environment variable when empty/omitted.
       "BAE": "https://<token>@<host>/api/o/<organization>/",
-      # forwarded to bitcaster_sdk.init() (optional, default: False)
+      # forwarded to the sdk client (optional, default: False)
       "DEBUG": False,
       # keep Bitcaster users aligned with Django users (optional, default: True)
       "SYNC_USERS": True,
       # project/application slugs used by Client.trigger_event() (optional)
       "PROJECT": "myprj",
       "APPLICATION": "myapp",
+      # fully qualified name of the sdk client class to use
+      # (optional, default: "bitcaster_sdk.client.Client")
+      "CLIENT": "bitcaster_sdk.async_client.AsyncClient",
   }
   ```
   The `bitcaster_sdk` client is initialized automatically at startup: no
