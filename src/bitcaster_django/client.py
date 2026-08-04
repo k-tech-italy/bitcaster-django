@@ -4,16 +4,18 @@ Defines a `Client` facade over the bitcaster-sdk client initialized at
 startup by `bitcaster_django.apps.Config.ready()`: it maps local event names
 (`EventConfig`) to remote Bitcaster events and wraps the sdk user management
 API. All Bitcaster calls made by the application should go through this class.
+
+The underlying sdk client class is configurable via the CLIENT key of the
+``BITCASTER`` settings dictionary: return values mirror the configured class
+(e.g. plain data for the sync client, futures for the async one).
 """
 
 import urllib.parse
 from typing import Any
 
 import requests
-from bitcaster_sdk.client import (
-    Client as SdkClient,
-    ctx,
-)
+from bitcaster_sdk.abstract_client import AbstractClient
+from bitcaster_sdk.client import ctx
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import get_object_or_404
 
@@ -37,7 +39,7 @@ class Client:
             )
 
     @property
-    def sdk(self) -> SdkClient:
+    def sdk(self) -> AbstractClient:
         """Return the bitcaster-sdk client initialized at startup."""
         return ctx.get()
 

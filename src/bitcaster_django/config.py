@@ -1,10 +1,15 @@
 """Access to the ``BITCASTER`` settings dictionary."""
 
 import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps
 from django.conf import settings
+from django.utils.module_loading import import_string
+
+
+if TYPE_CHECKING:
+    from bitcaster_sdk.abstract_client import AbstractClient
 
 
 #: name of the dictionary in the Django settings holding the bitcaster configuration
@@ -13,7 +18,7 @@ SETTINGS_KEY = "BITCASTER"
 DEFAULTS: dict[str, Any] = {
     # Bitcaster Application Endpoint. Falls back to the BITCASTER_BAE environment variable.
     "BAE": "",
-    # forwarded to `bitcaster_sdk.init()`
+    # forwarded to the sdk client
     "DEBUG": False,
     # keep Bitcaster users aligned with Django users (post_save handler)
     "SYNC_USERS": True,
@@ -23,10 +28,13 @@ DEFAULTS: dict[str, Any] = {
     # Bitcaster application slug used to trigger events.
     # Falls back to the BITCASTER_APPLICATION environment variable.
     "APPLICATION": "",
+    # fully qualified name of the sdk client class to instantiate at startup
+    # (e.g. "bitcaster_sdk.async_client.AsyncClient")
+    "CLIENT": "bitcaster_sdk.client.Client",
 }
 
-#: keys consumed by bitcaster-django itself, never forwarded to ``bitcaster_sdk.init()``
-APP_ONLY_KEYS = ("BAE", "SYNC_USERS", "PROJECT", "APPLICATION")
+#: keys consumed by bitcaster-django itself, never forwarded to the sdk client
+APP_ONLY_KEYS = ("BAE", "SYNC_USERS", "PROJECT", "APPLICATION", "CLIENT")
 
 
 def get_user_settings() -> dict[str, Any]:
@@ -82,8 +90,16 @@ class AppSettings:
         """Return the application slug, falling back to the BITCASTER_APPLICATION environment variable."""
         return self.APPLICATION or os.environ.get("BITCASTER_APPLICATION", "")
 
+    @property
+    def client_class(self) -> "type[AbstractClient]":
+        """Return the sdk client class configured via the CLIENT fully qualified class name.
+
+        Raises ImportError when the configured name cannot be imported.
+        """
+        return import_string(self.CLIENT)
+
     def sdk_options(self) -> dict[str, Any]:
-        """Return the options to forward to ``bitcaster_sdk.init()`` as lowercase kwargs."""
+        """Return the options to forward to the sdk client as lowercase kwargs."""
         merged = {**DEFAULTS, **get_user_settings()}
         return {k.lower(): v for k, v in merged.items() if k not in APP_ONLY_KEYS}
 
