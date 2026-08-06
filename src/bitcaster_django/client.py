@@ -1,9 +1,10 @@
 """Client module for interacting with Bitcaster.
 
 Defines a `Client` facade over the bitcaster-sdk client initialized at
-startup by `bitcaster_django.apps.Config.ready()`: it maps local event names
-(`EventConfig`) to remote Bitcaster events and wraps the sdk user management
-API. All Bitcaster calls made by the application should go through this class.
+startup by `bitcaster_django.apps.Config.ready()` and shared across threads:
+it maps local event names (`EventConfig`) to remote Bitcaster events and
+wraps the sdk user management API. All Bitcaster calls made by the
+application should go through this class.
 
 The underlying sdk client class is configurable via the CLIENT key of the
 ``BITCASTER`` settings dictionary: return values mirror the configured class
@@ -23,6 +24,33 @@ from bitcaster_django.config import SETTINGS_KEY, app_settings
 from bitcaster_django.models import EventConfig
 
 
+#: process-wide sdk client shared across threads. The sdk stores its client in a
+#: ContextVar, which does not propagate to threads spawned after initialization
+#: (e.g. the dev server's per-request threads): this module-level reference is
+#: the source of truth for the facade; `ctx` is mirrored only for code using the
+#: bitcaster_sdk module-level API in the thread that ran the initialization.
+_sdk_client: "AbstractClient | None" = None
+
+
+def set_sdk_client(client: AbstractClient) -> None:
+    """Store the shared sdk client and mirror it into the sdk ``ctx`` ContextVar."""
+    global _sdk_client  # noqa: PLW0603
+    _sdk_client = client
+    ctx.set(client)
+
+
+def get_sdk_client() -> "AbstractClient | None":
+    """Return the sdk client initialized by ``Config.init_sdk()``, from any thread."""
+    return _sdk_client
+
+
+def _require_sdk_client() -> AbstractClient:
+    client = get_sdk_client()
+    if client is None or client.transport is None:
+        raise ImproperlyConfigured(f"The bitcaster-sdk client is not initialized: check the {SETTINGS_KEY} setting.")
+    return client
+
+
 class Client:
     """
     Facade over the bitcaster-sdk client for triggering remote events and managing users.
@@ -33,15 +61,12 @@ class Client:
     """
 
     def __init__(self) -> None:
-        if ctx.get().transport is None:
-            raise ImproperlyConfigured(
-                f"The bitcaster-sdk client is not initialized: check the {SETTINGS_KEY} setting."
-            )
+        _require_sdk_client()
 
     @property
     def sdk(self) -> AbstractClient:
         """Return the bitcaster-sdk client initialized at startup."""
-        return ctx.get()
+        return _require_sdk_client()
 
     def trigger_event(self, event_name: str, context: "dict[str, str] | None" = None, **kwargs: Any) -> Any:  # noqa: ANN401
         """Trigger the remote Bitcaster event mapped to the given local event name."""
