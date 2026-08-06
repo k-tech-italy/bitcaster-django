@@ -26,7 +26,7 @@ To start working on this project:
     ```
 * Create a virtual environment for the project using uv. Make sure you use the earliest supported Python version:
     ```bash
-    uv venv create --python 3.10
+    uv venv --python 3.10
 
     # if you're not using direnv, you need to manually activate the virtual environment
     source .venv/bin/activate
@@ -34,6 +34,10 @@ To start working on this project:
 * Install the project's dependencies:
     ```bash
     uv sync
+    ```
+* Install the [pre-commit](https://pre-commit.com/) hooks:
+    ```bash
+    pre-commit install
     ```
 
 You **must** make sure that your changes are covered by unit and integration tests, and that it follows the project's stylistic guidelines. In the absence of the latter, you should mimic the style and patterns in the existing codebase.
@@ -61,6 +65,10 @@ tox -e lint
 
 Format the code using `ruff`:
 ```bash
-ruff check flags --fix
+ruff check --fix
 ruff format
 ```
+
+## Release
+
+See the [Release chapter of the contribution guide](https://k-tech-italy.github.io/bitcaster-django/contributing/#release).

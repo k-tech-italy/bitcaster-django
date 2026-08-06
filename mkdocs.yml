@@ -1,13 +1,13 @@
 copyright: Copyright &copy; 2025 KTech
 dev_addr: 127.0.0.1:8001
 docs_dir: docs/src
-edit_uri: 'blob/develop/docs/'
+edit_uri: 'blob/develop/docs/src/'
 repo_url: https://github.com/k-tech-italy/bitcaster-django
 site_author: KTech
 site_description: ""
 site_dir: ./~build/docs
 site_name: bitcaster-django
-site_url: https://k-tech-italy.github.io/k-tech-italy/bitcaster-django/
+site_url: https://k-tech-italy.github.io/bitcaster-django/
 strict: false
 
 theme:

@@ -31,6 +31,9 @@ application.
   )
   ```
 
+* Configure the app with the `BITCASTER` dictionary in your settings
+  (see [Getting started](usage.md)).
+
 * Run the migrations to create the event configuration table:
   ```bash
   python manage.py migrate
@@ -41,7 +44,7 @@ application.
   python manage.py check
   ```
 
-See [Getting started](usage.md) for configuration and usage.
+See [Getting started](usage.md) for the configuration reference and usage.
 
 ## Bug reports and requests for enhancements
 
@@ -53,4 +56,6 @@ See the [contribution guide](contributing.md).
 
 ## Licensing
 
-All rights reserved.
+Distributed under the KRM Source License, Version 1.1, Apache 2.0 Future
+License: see
+[LICENSE.md](https://github.com/k-tech-italy/bitcaster-django/blob/master/LICENSE.md).

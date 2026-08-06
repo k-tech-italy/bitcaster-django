@@ -8,7 +8,7 @@
 -->
 
 
-Bitcaster-django is a Django app for seamless integrating with [Bitcaster](https://docs.bitcaster.io/) system-to-user signal-to-message notification system.
+Bitcaster-django is a Django app for seamless integration with [Bitcaster](https://docs.bitcaster.io/), the system-to-user signal-to-message notification system.
 
 ## Features
 
@@ -77,6 +77,21 @@ Bitcaster-django is a Django app for seamless integrating with [Bitcaster](https
   python manage.py check
   ```
 
+## Triggering events
+
+Map a local event name to a remote Bitcaster event slug with the `EventConfig`
+model (e.g. from the Django admin), then trigger the event by its local name
+through the `Client` facade:
+
+```python
+from bitcaster_django.client import Client
+
+Client().trigger_event("signup", context={"username": user.username})
+```
+
+See the [documentation](https://k-tech-italy.github.io/bitcaster-django/) for
+details.
+
 ## User synchronisation
 
 When `SYNC_USERS` is enabled (the default), a `post_save` handler on your
@@ -119,4 +134,5 @@ See the [contribution guide](CONTRIBUTING.md).
 
 ## Licensing
 
-All rights reserved.
+Distributed under the KRM Source License, Version 1.1, Apache 2.0 Future
+License: see [LICENSE.md](LICENSE.md).
