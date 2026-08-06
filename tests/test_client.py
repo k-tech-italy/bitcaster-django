@@ -1,10 +1,7 @@
 from unittest.mock import patch
 
 import pytest
-from bitcaster_sdk.client import (
-    Client as SdkClient,
-    ctx,
-)
+from bitcaster_sdk.client import Client as SdkClient
 from django.core.exceptions import ImproperlyConfigured
 from django.test import override_settings
 
@@ -18,12 +15,9 @@ BAE = "https://token-123@bitcaster.example.com/api/o/demo-org/"
 
 
 def test_client_requires_initialized_sdk() -> None:
-    token = ctx.set(SdkClient(None))
-    try:
+    with patch("bitcaster_django.client._sdk_client", SdkClient(None)):
         with pytest.raises(ImproperlyConfigured, match="not initialized"):
             Client()
-    finally:
-        ctx.reset(token)
 
 
 def test_trigger_event() -> None:
