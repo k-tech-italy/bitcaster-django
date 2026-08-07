@@ -55,26 +55,16 @@ python manage.py check
 
 ### Triggering events
 
-Map a local event name to a remote Bitcaster event slug with the `EventConfig`
-model (e.g. from the Django admin or a data migration):
-
-```python
-from bitcaster_django.models import EventConfig
-
-EventConfig.objects.create(local_name="signup", remote_event_slug="user-signup")
-```
-
-then trigger the event by its local name through the `Client` facade:
+Trigger an event defined on the Bitcaster server by its name through the
+`Client` facade:
 
 ```python
 from bitcaster_django.client import Client
 
-Client().trigger_event("signup", context={"username": user.username})
+Client().trigger_event("user-signup", context={"username": user.username})
 ```
 
-The event is triggered on the configured `PROJECT`/`APPLICATION`. Keeping the
-mapping in the database decouples the names used in your code from the slugs
-defined on the Bitcaster server, so they can be changed without redeploying.
+The event is triggered on the configured `PROJECT`/`APPLICATION`.
 
 ### Managing users
 
