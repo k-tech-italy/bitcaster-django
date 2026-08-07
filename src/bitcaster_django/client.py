@@ -2,9 +2,8 @@
 
 Defines a `Client` facade over the bitcaster-sdk client initialized at
 startup by `bitcaster_django.apps.Config.ready()` and shared across threads:
-it maps local event names (`EventConfig`) to remote Bitcaster events and
-wraps the sdk user management API. All Bitcaster calls made by the
-application should go through this class.
+it triggers remote Bitcaster events and wraps the sdk user management API.
+All Bitcaster calls made by the application should go through this class.
 
 The underlying sdk client class is configurable via the CLIENT key of the
 ``BITCASTER`` settings dictionary: return values mirror the configured class
@@ -18,10 +17,8 @@ import requests
 from bitcaster_sdk.abstract_client import AbstractClient
 from bitcaster_sdk.client import ctx
 from django.core.exceptions import ImproperlyConfigured
-from django.shortcuts import get_object_or_404
 
 from bitcaster_django.config import SETTINGS_KEY, app_settings
-from bitcaster_django.models import EventConfig
 
 
 #: process-wide sdk client shared across threads. The sdk stores its client in a
@@ -56,8 +53,7 @@ class Client:
     Facade over the bitcaster-sdk client for triggering remote events and managing users.
 
     Relies on the sdk client initialized at startup from the ``BITCASTER``
-    settings dictionary; uses local event configuration stored in the database
-    to map local event names to remote Bitcaster event slugs.
+    settings dictionary.
     """
 
     def __init__(self) -> None:
@@ -69,8 +65,7 @@ class Client:
         return _require_sdk_client()
 
     def trigger_event(self, event_name: str, context: "dict[str, str] | None" = None, **kwargs: Any) -> Any:  # noqa: ANN401
-        """Trigger the remote Bitcaster event mapped to the given local event name."""
-        mapping = get_object_or_404(EventConfig, local_name=event_name)
+        """Trigger the remote Bitcaster event with the given name."""
         project = app_settings.project
         application = app_settings.application
         if not project:
@@ -79,7 +74,7 @@ class Client:
             raise ImproperlyConfigured(f"Missing APPLICATION in the {SETTINGS_KEY} setting.")
         # set_domain() on every call: PROJECT/APPLICATION may change at runtime via constance
         self.sdk.set_domain(project, application)
-        return self.sdk.trigger_event(mapping.remote_event_slug, context=context, **kwargs)
+        return self.sdk.trigger_event(event_name, context=context, **kwargs)
 
     def add_user(self, email: str, first_name: str = "", last_name: str = "") -> Any:  # noqa: ANN401
         """Create a Bitcaster user with the given email."""

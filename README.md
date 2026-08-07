@@ -16,8 +16,7 @@ Bitcaster-django is a Django app for seamless integration with [Bitcaster](https
   automatically at startup from the `BITCASTER` settings dictionary (or the
   `BITCASTER_BAE` environment variable): no `bitcaster_sdk.init()` call needed.
 * **Event triggering** — a `Client` facade triggers remote Bitcaster events by
-  local name, using the `EventConfig` model to map local event names to remote
-  event slugs.
+  name on the configured project and application.
 * **User synchronisation** — Bitcaster users are kept aligned with your Django
   users automatically (creation and updates), with helper mixins for user
   management.
@@ -79,9 +78,8 @@ Bitcaster-django is a Django app for seamless integration with [Bitcaster](https
 
 ## Triggering events
 
-Map a local event name to a remote Bitcaster event slug with the `EventConfig`
-model (e.g. from the Django admin), then trigger the event by its local name
-through the `Client` facade:
+Trigger an event defined on the Bitcaster server by its name through the
+`Client` facade:
 
 ```python
 from bitcaster_django.client import Client
