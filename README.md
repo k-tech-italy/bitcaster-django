@@ -22,6 +22,9 @@ Bitcaster-django is a Django app for seamless integration with [Bitcaster](https
   members of your Bitcaster application for their whole lifecycle (creation,
   update, deactivation/reactivation and deletion), optionally subscribing
   them to a distribution list, with helper mixins for user management.
+* **Advanced clients** — optional drop-in sdk client subclasses (sync and
+  async) with Django-aware helpers to trigger events only for given
+  usernames or Django groups.
 * **Runtime configuration** — with the optional `constance` extra, any
   `BITCASTER` setting can be changed at runtime through django-constance; the
   sdk client is reinitialized automatically on changes.
@@ -91,6 +94,20 @@ through the `Client` facade:
 from bitcaster_django.client import Client
 
 Client().trigger_event("signup", context={"username": user.username})
+```
+
+With `CLIENT` pointing at one of the advanced clients
+(`bitcaster_django.advanced.Client` or
+`bitcaster_django.advanced.AsyncClient`), events can be triggered for a
+subset of the recipients through the `django` namespace:
+
+```python
+from bitcaster_django.client import Client
+
+sdk = Client().sdk  # the configured advanced client
+sdk.set_domain("myprj", "myapp")
+sdk.django.trigger_for_users("user-signup", ["u1", "u2"])
+sdk.django.trigger_for_groups("user-signup", [managers_group.pk])
 ```
 
 See the [documentation](https://k-tech-italy.github.io/bitcaster-django/) for

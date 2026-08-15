@@ -134,6 +134,9 @@ BITCASTER = {
     "SYNC_USERS": True,
     "PROJECT": os.environ.get("BITCASTER_PROJECT_SLUG", "demo-project"),
     "APPLICATION": os.environ.get("BITCASTER_APPLICATION", "demo-app"),
+    "DISTRIBUTION_LIST": os.environ.get("BITCASTER_DISTRIBUTION_LIST", ""),
+    # the advanced client adds the `django` namespace (trigger_for_users/trigger_for_groups)
+    "CLIENT": os.environ.get("BITCASTER_CLIENT", "bitcaster_django.advanced.Client"),
 }
 
 # django-constance (optional bitcaster-django runtime configuration)
@@ -143,4 +146,7 @@ CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
 CONSTANCE_CONFIG = {
     "BITCASTER_BAE": ("", "Bitcaster Application Endpoint"),
+    "BITCASTER_PROJECT": ("", "Bitcaster project slug"),
+    "BITCASTER_APPLICATION": ("", "Bitcaster application slug"),
+    "BITCASTER_DISTRIBUTION_LIST": ("", "Distribution list synced users are subscribed to"),
 }

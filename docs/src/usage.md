@@ -101,6 +101,46 @@ client.update_user("user@example.com", "First", "Last")
 client.delete_user("user@example.com")
 ```
 
+### Advanced clients
+
+The `bitcaster_django.advanced` module provides drop-in subclasses of the
+sdk clients — `Client` (sync) and `AsyncClient` — extended with a `django`
+namespace of Django-aware helpers. Opt in via the `CLIENT` setting:
+
+```python
+BITCASTER = {
+    ...
+    "CLIENT": "bitcaster_django.advanced.Client",
+    # or "bitcaster_django.advanced.AsyncClient"
+}
+```
+
+The `django` namespace triggers events for a subset of the recipients, on
+top of the sdk `trigger_event` API (the recipient filter travels in its
+`options` parameter, any caller-provided options are preserved):
+
+```python
+from bitcaster_django.client import Client
+
+sdk = Client().sdk  # the configured advanced client
+sdk.set_domain("myprj", "myapp")
+
+# only the users with the given usernames
+sdk.django.trigger_for_users("user-signup", ["u1", "u2"], context={"k": "v"})
+
+# only the users belonging to at least one of the given Django groups
+sdk.django.trigger_for_groups("user-signup", [managers_group.pk])
+```
+
+`trigger_for_groups` resolves the group members to usernames using the
+local Django database (the source of truth for the memberships synced to
+Bitcaster — see the `groups` custom field above); the query always runs in
+the calling thread, even with the async client. Both methods raise
+`ValueError` on an empty recipient list (an empty filter could otherwise
+reach every recipient), and return what the underlying client returns:
+plain data for the sync client, `concurrent.futures.Future` objects for the
+async one.
+
 ### Using the sdk directly
 
 The `bitcaster_sdk` client is initialized automatically when Django starts, so

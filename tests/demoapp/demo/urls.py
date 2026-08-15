@@ -1,24 +1,25 @@
-"""
-URL configuration for demo project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+"""URL configuration for the bitcaster-django demo project."""
 
 from django.contrib import admin
 from django.urls import path
 
+from . import views
+
 
 urlpatterns = [
+    path("", views.index, name="index"),
     path("admin/", admin.site.urls),
+    # user lifecycle: automatic Bitcaster register/unregister via signal handlers
+    path("users/", views.users, name="users"),
+    path("users/add/<str:username>/", views.user_add, name="user-add"),
+    path("users/<str:username>/update/", views.user_update, name="user-update"),
+    path("users/<str:username>/activate/", views.user_set_active, {"active": True}, name="user-activate"),
+    path("users/<str:username>/deactivate/", views.user_set_active, {"active": False}, name="user-deactivate"),
+    path("users/<str:username>/delete/", views.user_delete, name="user-delete"),
+    path("users/<str:username>/groups/<str:group>/add/", views.user_group, {"add": True}, name="user-group-add"),
+    path("users/<str:username>/groups/<str:group>/remove/", views.user_group, {"add": False}, name="user-group-remove"),
+    # event triggering: Client facade and advanced client django namespace
+    path("trigger/<str:event>/", views.trigger, name="trigger"),
+    path("trigger/<str:event>/users/", views.trigger_users, name="trigger-users"),
+    path("trigger/<str:event>/groups/", views.trigger_groups, name="trigger-groups"),
 ]

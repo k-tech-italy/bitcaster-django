@@ -44,7 +44,9 @@ application.
   python manage.py check
   ```
 
-See [Getting started](usage.md) for the configuration reference and usage.
+See [Getting started](usage.md) for the configuration reference and usage,
+and the [demo application](demo.md) for a runnable playground exercising
+every feature from the browser.
 
 ## Bug reports and requests for enhancements
 
