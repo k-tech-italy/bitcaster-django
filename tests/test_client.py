@@ -42,6 +42,66 @@ def test_trigger_event_without_configuration(monkeypatch, key) -> None:
             Client().trigger_event("example_local_name")
 
 
+def test_register_user() -> None:
+    with patch("bitcaster_sdk.client.Client.register_user") as register_user:
+        Client().register_user("u1", "John", "Doe", "example@mail")
+    register_user.assert_called_once_with(
+        "demo-project",
+        "demo-app",
+        "u1",
+        "John",
+        "Doe",
+        "example@mail",
+        custom_fields=None,
+        active=True,
+        addresses=[{"value": "example@mail", "assign_to_preferred_channel": True}],
+        distribution_list=None,
+    )
+
+
+def test_register_user_with_custom_fields() -> None:
+    with patch("bitcaster_sdk.client.Client.register_user") as register_user:
+        Client().register_user("u1", custom_fields={"groups": [3, 8, 11]})
+    assert register_user.call_args.kwargs["custom_fields"] == {"groups": [3, 8, 11]}
+
+
+def test_register_user_inactive() -> None:
+    with patch("bitcaster_sdk.client.Client.register_user") as register_user:
+        Client().register_user("u1", active=False)
+    assert register_user.call_args.kwargs["active"] is False
+
+
+def test_register_user_without_email_has_no_addresses() -> None:
+    with patch("bitcaster_sdk.client.Client.register_user") as register_user:
+        Client().register_user("u1", "John", "Doe")
+    assert register_user.call_args.kwargs["addresses"] == []
+
+
+def test_register_user_with_distribution_list() -> None:
+    config = {"BAE": BAE, "PROJECT": "demo-project", "APPLICATION": "demo-app", "DISTRIBUTION_LIST": "mylist"}
+    with override_settings(BITCASTER=config):
+        with patch("bitcaster_sdk.client.Client.register_user") as register_user:
+            Client().register_user("u1")
+    assert register_user.call_args.kwargs["distribution_list"] == "mylist"
+
+
+def test_unregister_user() -> None:
+    with patch("bitcaster_sdk.client.Client.unregister_user") as unregister_user:
+        Client().unregister_user("u1")
+    unregister_user.assert_called_once_with("demo-project", "demo-app", "u1")
+
+
+@pytest.mark.parametrize("key", ["PROJECT", "APPLICATION"])
+@pytest.mark.parametrize("method", ["register_user", "unregister_user"])
+def test_user_registration_without_configuration(monkeypatch, key, method) -> None:
+    monkeypatch.delenv("BITCASTER_PROJECT_SLUG", raising=False)
+    monkeypatch.delenv("BITCASTER_APPLICATION", raising=False)
+    config = {"BAE": BAE, "PROJECT": "demo-project", "APPLICATION": "demo-app", "SYNC_USERS": False, key: ""}
+    with override_settings(BITCASTER=config):
+        with pytest.raises(ImproperlyConfigured, match=f"Missing {key}"):
+            getattr(Client(), method)("u1")
+
+
 def test_add_user() -> None:
     with patch("bitcaster_sdk.client.Client.add_user") as add_user:
         Client().add_user("example@mail", "John", "Doe")

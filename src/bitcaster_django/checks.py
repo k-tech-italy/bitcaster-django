@@ -55,6 +55,20 @@ def check_bitcaster_settings(app_configs: "list[AppConfig] | None", **kwargs: ob
                 id="bitcaster_django.E003",
             )
         )
+    if app_settings.SYNC_USERS:
+        messages.extend(
+            checks.Error(
+                f"Bitcaster {key} is not configured but user synchronisation (SYNC_USERS) is enabled.",
+                hint=f'Set {SETTINGS_KEY} = {{"{key}": "<slug>"}} in your settings, set the '
+                f"BITCASTER_{env_suffix} environment variable, or disable SYNC_USERS.",
+                id=check_id,
+            )
+            for key, env_suffix, check_id, value in (
+                ("PROJECT", "PROJECT_SLUG", "bitcaster_django.E004", app_settings.project),
+                ("APPLICATION", "APPLICATION", "bitcaster_django.E005", app_settings.application),
+            )
+            if not value
+        )
     messages.extend(
         checks.Warning(
             f"Unknown key '{key}' in the {SETTINGS_KEY} setting.",

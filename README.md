@@ -18,9 +18,10 @@ Bitcaster-django is a Django app for seamless integration with [Bitcaster](https
 * **Event triggering** — a `Client` facade triggers remote Bitcaster events by
   local name, using the `EventConfig` model to map local event names to remote
   event slugs.
-* **User synchronisation** — Bitcaster users are kept aligned with your Django
-  users automatically (creation and updates), with helper mixins for user
-  management.
+* **User synchronisation** — Django users are automatically registered as
+  members of your Bitcaster application for their whole lifecycle (creation,
+  update, deactivation/reactivation and deletion), optionally subscribing
+  them to a distribution list, with helper mixins for user management.
 * **Runtime configuration** — with the optional `constance` extra, any
   `BITCASTER` setting can be changed at runtime through django-constance; the
   sdk client is reinitialized automatically on changes.
@@ -61,9 +62,12 @@ Bitcaster-django is a Django app for seamless integration with [Bitcaster](https
       "DEBUG": False,
       # keep Bitcaster users aligned with Django users (optional, default: True)
       "SYNC_USERS": True,
-      # project/application slugs used by Client.trigger_event() (optional)
+      # project/application slugs used by Client.trigger_event()
+      # (required when SYNC_USERS is enabled)
       "PROJECT": "myprj",
       "APPLICATION": "myapp",
+      # distribution list synced users are subscribed to (optional)
+      "DISTRIBUTION_LIST": "mylist",
       # fully qualified name of the sdk client class to use
       # (optional, default: "bitcaster_sdk.client.Client")
       "CLIENT": "bitcaster_sdk.async_client.AsyncClient",
@@ -94,14 +98,28 @@ details.
 
 ## User synchronisation
 
-When `SYNC_USERS` is enabled (the default), a `post_save` handler on your
-`AUTH_USER_MODEL` keeps Bitcaster users aligned with Django users:
+When `SYNC_USERS` is enabled (the default), signal handlers on your
+`AUTH_USER_MODEL` keep Bitcaster aligned with your Django users, using the
+username as the lookup key:
 
-* creating a Django user creates the matching Bitcaster user;
-* updating a Django user updates it (creating it if missing).
+* saving a Django user registers it as member of the configured
+  `PROJECT`/`APPLICATION` (creating the Bitcaster user if missing), with the
+  membership `active` flag mirroring `is_active`, so deactivating and
+  reactivating a user is reflected in Bitcaster without losing data;
+* when the user has an email address, it is registered as an address assigned
+  to the preferred channels, and subscribed to the `DISTRIBUTION_LIST`
+  distribution list (when configured);
+* the membership custom fields always carry the pks of the Django groups the
+  user is assigned to (e.g. `{"groups": [3, 8, 11]}`), kept up to date as
+  users are added to/removed from groups — use it with Bitcaster filter
+  payloads to send messages only to the users belonging to a certain group;
+* deleting a Django user unregisters it from the application.
 
-Users without an email address are skipped, and any error while talking to
-Bitcaster is logged but never breaks the saving of the Django user.
+Any error while talking to Bitcaster is logged but never breaks the saving or
+deletion of the Django user. Known limitations: bulk operations
+(`QuerySet.update()`/`QuerySet.delete()`) do not emit per-instance signals and
+are not synced; name/email changes are not propagated to an already existing
+Bitcaster user; unregistering does not remove distribution-list subscriptions.
 
 ## Runtime configuration with django-constance (optional)
 

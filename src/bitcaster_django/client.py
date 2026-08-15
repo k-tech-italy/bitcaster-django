@@ -51,6 +51,17 @@ def _require_sdk_client() -> AbstractClient:
     return client
 
 
+def _require_domain() -> "tuple[str, str]":
+    """Return the configured (project, application) pair, or raise ImproperlyConfigured."""
+    project = app_settings.project
+    application = app_settings.application
+    if not project:
+        raise ImproperlyConfigured(f"Missing PROJECT in the {SETTINGS_KEY} setting.")
+    if not application:
+        raise ImproperlyConfigured(f"Missing APPLICATION in the {SETTINGS_KEY} setting.")
+    return project, application
+
+
 class Client:
     """
     Facade over the bitcaster-sdk client for triggering remote events and managing users.
@@ -71,15 +82,54 @@ class Client:
     def trigger_event(self, event_name: str, context: "dict[str, str] | None" = None, **kwargs: Any) -> Any:  # noqa: ANN401
         """Trigger the remote Bitcaster event mapped to the given local event name."""
         mapping = get_object_or_404(EventConfig, local_name=event_name)
-        project = app_settings.project
-        application = app_settings.application
-        if not project:
-            raise ImproperlyConfigured(f"Missing PROJECT in the {SETTINGS_KEY} setting.")
-        if not application:
-            raise ImproperlyConfigured(f"Missing APPLICATION in the {SETTINGS_KEY} setting.")
-        # set_domain() on every call: PROJECT/APPLICATION may change at runtime via constance
+        # resolved on every call: PROJECT/APPLICATION may change at runtime via constance
+        project, application = _require_domain()
         self.sdk.set_domain(project, application)
         return self.sdk.trigger_event(mapping.remote_event_slug, context=context, **kwargs)
+
+    def register_user(
+        self,
+        username: str,
+        first_name: str = "",
+        last_name: str = "",
+        email: str = "",
+        *,
+        active: bool = True,
+        custom_fields: "dict[str, Any] | None" = None,
+    ) -> Any:  # noqa: ANN401
+        """Register the user as member of the configured project/application.
+
+        Creates the Bitcaster user when missing and upserts its application
+        membership (including the ``active`` flag and the ``custom_fields``,
+        e.g. the Django group pks used by Bitcaster filter payloads). When
+        the user has an email it is passed as an address assigned to the
+        preferred channels, so the resulting assignments are added to the
+        distribution list configured via the DISTRIBUTION_LIST setting (if
+        any).
+        """
+        project, application = _require_domain()
+        addresses = [{"value": email, "assign_to_preferred_channel": True}] if email else []
+        return self.sdk.register_user(
+            project,
+            application,
+            username,
+            first_name,
+            last_name,
+            email,
+            custom_fields=custom_fields,
+            active=active,
+            addresses=addresses,
+            distribution_list=app_settings.distribution_list or None,
+        )
+
+    def unregister_user(self, username: str) -> Any:  # noqa: ANN401
+        """Unregister the user from the configured project/application.
+
+        Deletes the user's application membership records; distribution list
+        subscriptions are not affected.
+        """
+        project, application = _require_domain()
+        return self.sdk.unregister_user(project, application, username)
 
     def add_user(self, email: str, first_name: str = "", last_name: str = "") -> Any:  # noqa: ANN401
         """Create a Bitcaster user with the given email."""

@@ -115,7 +115,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bitcaster-sdk", git = "https://github.com/bitcaster-io/bitcaster-sdk.git?branch=develop" },
+    { name = "bitcaster-sdk", specifier = ">=0.4" },
     { name = "django", specifier = ">=4.2" },
     { name = "django-constance", marker = "extra == 'constance'", specifier = ">=4" },
     { name = "django-environ", specifier = ">=0.11.2" },
@@ -140,12 +140,16 @@ dev = [
 
 [[package]]
 name = "bitcaster-sdk"
-version = "0.4.dev1+gd25445887"
-source = { git = "https://github.com/bitcaster-io/bitcaster-sdk.git?branch=develop#d25445887fa09aaca42bf2dff975699afde7aa3d" }
+version = "0.4"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "humanfriendly" },
     { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a5/bb/1127ba4dff32c5374209f7e99f3632297dc90b62d16ac894a3482c3f22cb/bitcaster_sdk-0.4.tar.gz", hash = "sha256:a2eceb4f638580b416817a4ce78305de7b3f381d50dc14d44cc63fca73e2c872", size = 16994, upload-time = "2026-08-15T14:59:27.646Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e2/73/ca9c0ae57a0f50e8f7a8e100e4e1ab4285370fc981a1a149bd8b763e3c3b/bitcaster_sdk-0.4-py3-none-any.whl", hash = "sha256:cb2f34d472ddcb642dda7d557a889dafacdfb266500d9ff775c6177ca9131814", size = 24268, upload-time = "2026-08-15T14:59:26.641Z" },
 ]
 
 [[package]]

@@ -28,13 +28,16 @@ DEFAULTS: dict[str, Any] = {
     # Bitcaster application slug used to trigger events.
     # Falls back to the BITCASTER_APPLICATION environment variable.
     "APPLICATION": "",
+    # Bitcaster distribution list synced users are added to (optional).
+    # Falls back to the BITCASTER_DISTRIBUTION_LIST environment variable.
+    "DISTRIBUTION_LIST": "",
     # fully qualified name of the sdk client class to instantiate at startup
     # (e.g. "bitcaster_sdk.async_client.AsyncClient")
     "CLIENT": "bitcaster_sdk.client.Client",
 }
 
 #: keys consumed by bitcaster-django itself, never forwarded to the sdk client
-APP_ONLY_KEYS = ("BAE", "SYNC_USERS", "PROJECT", "APPLICATION", "CLIENT")
+APP_ONLY_KEYS = ("BAE", "SYNC_USERS", "PROJECT", "APPLICATION", "DISTRIBUTION_LIST", "CLIENT")
 
 
 def get_user_settings() -> dict[str, Any]:
@@ -89,6 +92,11 @@ class AppSettings:
     def application(self) -> str:
         """Return the application slug, falling back to the BITCASTER_APPLICATION environment variable."""
         return self.APPLICATION or os.environ.get("BITCASTER_APPLICATION", "")
+
+    @property
+    def distribution_list(self) -> str:
+        """Return the distribution list name, falling back to the BITCASTER_DISTRIBUTION_LIST environment variable."""
+        return self.DISTRIBUTION_LIST or os.environ.get("BITCASTER_DISTRIBUTION_LIST", "")
 
     @property
     def client_class(self) -> "type[AbstractClient]":
