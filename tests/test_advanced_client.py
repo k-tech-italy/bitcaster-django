@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import typing
 from unittest.mock import patch
 
 import pytest
@@ -10,6 +13,10 @@ from bitcaster_django.advanced import AsyncClient, Client, DjangoClient, DjangoN
 from bitcaster_django.client import get_sdk_client
 
 
+if typing.TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser
+
+
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
@@ -17,7 +24,7 @@ User = get_user_model()
 BAE = "https://token-123@bitcaster.example.com/api/o/demo-org/"
 
 
-def _user(username: str, *groups: Group) -> User:
+def _user(username: str, *groups: Group) -> AbstractUser:
     with patch("bitcaster_django.client.Client.register_user"):
         user = User.objects.create(username=username, email=f"{username}@example.com")
         user.groups.set(groups)
